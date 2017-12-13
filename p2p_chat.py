@@ -39,10 +39,10 @@ def client_thread(peer_ip):
     try:
         client_socket.connect((peer_ip, PORT))
     except socket.error as msg:
-        print('Connection failed. Error Code : ' +
-              str(msg[0]) + ' Message ' + msg[1])
+        print(msg)
 
     socket_list = [sys.stdin, client_socket]
+    prompt()
     while True:
         read_sockets, write_sockets, error_sockets = select.select(
             socket_list, [], [])
@@ -59,45 +59,43 @@ def listen_client(client_socket):
     while True:
         try:
             data = client_socket.recv(1024)
-            if not data:
-                print('\nDesconectado del peer.')
-            else:
-                sys.stdout.write(data.decode('ascii'))
+            if data:
+                sys.stdout.write('\r' + data.decode('ascii'))
                 prompt()
         except socket.error:
             client_socket.close()
 
 
-def server_thread():
-    print('Servidor Iniciado')
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        server_socket.bind((HOST, PORT))
-    except socket.error as msg:
-        print('Bind failed. Error Code : ' +
-              str(msg[0]) + ' Message ' + msg[1])
-    server_socket.listen(10)
-
+def server_thread(server_sock):
     while 1:
-        connection, address = server_socket.accept()
+        connection, address = server_sock.accept()
+        print('\r' + address[0])
         if address[0] not in PEERS_LIST:
             CLIENT_THREADS.append(threading.Thread(
                 target=client_thread, args=(address[0], )).start())
         CONNECTION_THREADS.append(threading.Thread(
             target=listen_client, args=(connection,)).start())
 
-    server_socket.close()
+    server_sock.close()
 
 
 if __name__ == "__main__":
     HOST = ''
-    PORT = 8889
+    PORT = 8870
     PEERS_LIST = []
     CONNECTION_THREADS = []
     CLIENT_THREADS = []
 
     get_connected_peers()
-    threading.Thread(target=server_thread).start()
+
+    SERVER_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        SERVER_SOCKET.bind((HOST, PORT))
+    except socket.error as msg:
+        print(msg)
+    SERVER_SOCKET.listen(10)
+    threading.Thread(target=server_thread, args=(SERVER_SOCKET, )).start()
+
     if PEERS_LIST:
         for peer in PEERS_LIST:
             CLIENT_THREADS.append(threading.Thread(
