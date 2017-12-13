@@ -1,40 +1,34 @@
 import socket
 import sys
-from _thread import *
+import threading
 
-#Function for handling connections. This will be used to create threads
-def clientthread(conn):
-    #infinite loop so that function do not terminate and thread do not end.
+
+def clientthread(client_socket):
     while True:
         try:
-        #Receiving from client
-            data = conn.recv(1024)
+            data = client_socket.recv(1024)
             if data:
-            	print(data)
+                print(data)
         except socket.error:
-        	conn.close()
-    
- 
-HOST = ''   # Symbolic name meaning all available interfaces
-PORT = 8889 # Arbitrary non-privileged port
- 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
- 
-#Bind socket to local host and port
+            client_socket.close()
+
+
+HOST = ''
+PORT = 8889
+
+SERVER_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
 try:
-    s.bind((HOST, PORT))
-except:
-	sys.exit()
- 
-#Start listening on socket
-s.listen(10)
- 
-#now keep talking with the client
+    SERVER_SOCKET.bind((HOST, PORT))
+except socket.error as msg:
+    print('Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
+    sys.exit()
+
+SERVER_SOCKET.listen(10)
+THREADS = []
+
 while 1:
-    #wait to accept a connection - blocking call
-    conn, addr = s.accept()
-     
-    #start new thread takes 1st argument as a function name to be run, second is the tuple of arguments to the function.
-    start_new_thread(clientthread ,(conn,))
- 
-s.close()
+    connection, address = s.accept()
+    THREADS.append(threading.Thread(target=clientthread, args=(connection,)).start())
+
+SERVER_SOCKET.close()

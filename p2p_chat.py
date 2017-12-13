@@ -4,23 +4,36 @@ import shlex
 import xml.etree.ElementTree as elt
 
 
-def get_ip_address():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    return s.getsockname()[0]
+def get_network_mask():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.connect(("8.8.8.8", 80))
+    ip_addr = sock.getsockname()[0]
+    ip_split = ip_addr.split('.')
+    net_addr = ''
+    for i in range(3):
+        net_addr += ip_split[i] + '.'
+    net_addr += '0/24'
+    return net_addr
 
 
-aux = get_ip_address().split('.')
-addr = ''
-for i in range(3):
-    addr += aux[i] + '.'
-addr += '0/24'
-print(addr)
+def get_connected_peers():
+    args = shlex.split('nmap -oX ./ex.xml -p ' + str(PORT) + ' ' + get_network_mask() + ' --open')
+    subprocess.call(args)
+    xml_content = elt.parse('ex.xml').getroot()
+    for address in xml_content.iter('address'):
+        PEERS_LIST.append(address.get('addr'))
 
-args = shlex.split("nmap -oX ./ex.xml -p 8889 172.31.99.0/24 --open")
-subprocess.call(args)
-content = elt.parse('ex.xml').getroot()
-for address in content.iter('address'):
-    print(address.get('addr'))
+def search_peers():
+    get_connected_peers()
+    if PEERS_LIST:
+        return True
+    else:
+        return False
 
-print('fin')
+
+if __name__ == "__main__":
+    PORT = 8889
+    PEERS_LIST = []
+    print(search_peers())
+    print(PEERS_LIST)
+    print('fin')
