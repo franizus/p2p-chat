@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE nmaprun>
 <?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
-<!-- Nmap 7.60 scan initiated Wed Dec 13 11:03:09 2017 as: nmap -oX ./ex.xml -p 8889 -&#45;open 172.31.99.0/24 -->
-<nmaprun scanner="nmap" args="nmap -oX ./ex.xml -p 8889 -&#45;open 172.31.99.0/24" start="1513180989" startstr="Wed Dec 13 11:03:09 2017" version="7.60" xmloutputversion="1.04">
+<!-- Nmap 7.60 scan initiated Wed Dec 13 11:51:36 2017 as: nmap -oX ./ex.xml -p 8889 -&#45;open 172.31.99.0/24 -->
+<nmaprun scanner="nmap" args="nmap -oX ./ex.xml -p 8889 -&#45;open 172.31.99.0/24" start="1513183896" startstr="Wed Dec 13 11:51:36 2017" version="7.60" xmloutputversion="1.04">
 <scaninfo type="connect" protocol="tcp" numservices="1" services="8889"/>
 <verbose level="0"/>
 <debugging level="0"/>
-<runstats><finished time="1513180992" timestr="Wed Dec 13 11:03:12 2017" elapsed="3.15" summary="Nmap done at Wed Dec 13 11:03:12 2017; 256 IP addresses (3 hosts up) scanned in 3.15 seconds" exit="success"/><hosts up="3" down="253" total="256"/>
+<runstats><finished time="1513183898" timestr="Wed Dec 13 11:51:38 2017" elapsed="2.45" summary="Nmap done at Wed Dec 13 11:51:38 2017; 256 IP addresses (5 hosts up) scanned in 2.45 seconds" exit="success"/><hosts up="5" down="251" total="256"/>
 </runstats>
 </nmaprun>
