@@ -4,6 +4,7 @@ import shlex
 import threading
 import select
 import sys
+import multiprocessing as mp
 import xml.etree.ElementTree as elt
 
 
@@ -39,7 +40,7 @@ def client_thread(peer_ip):
     try:
         client_socket.connect((peer_ip, PORT))
     except socket.error as msg:
-        print(msg)
+        pass
 
     socket_list = [sys.stdin, client_socket]
     prompt()
@@ -49,7 +50,10 @@ def client_thread(peer_ip):
         for sock in read_sockets:
             if sock != client_socket:
                 msg = sys.stdin.readline()
-                client_socket.send(msg.encode('ascii'))
+                try:
+                    client_socket.send(msg.encode('ascii'))
+                except socket.error:
+                    pass
                 prompt()
 
     client_socket.close()
@@ -66,11 +70,12 @@ def listen_client(client_socket):
             client_socket.close()
 
 
-def server_thread(server_sock):
+def server_thread(server_sock, peers):
     while 1:
         connection, address = server_sock.accept()
-        print('\r' + address[0])
-        if address[0] not in PEERS_LIST:
+        if address[0] not in peers:
+            print('\r' + address)
+            print('\r' + peers)
             CLIENT_THREADS.append(threading.Thread(
                 target=client_thread, args=(address[0], )).start())
         CONNECTION_THREADS.append(threading.Thread(
@@ -81,7 +86,7 @@ def server_thread(server_sock):
 
 if __name__ == "__main__":
     HOST = ''
-    PORT = 8870
+    PORT = 8868
     PEERS_LIST = []
     CONNECTION_THREADS = []
     CLIENT_THREADS = []
@@ -94,7 +99,7 @@ if __name__ == "__main__":
     except socket.error as msg:
         print(msg)
     SERVER_SOCKET.listen(10)
-    threading.Thread(target=server_thread, args=(SERVER_SOCKET, )).start()
+    mp.Process(target=server_thread, args=(SERVER_SOCKET, PEERS_LIST, )).start()
 
     if PEERS_LIST:
         for peer in PEERS_LIST:
