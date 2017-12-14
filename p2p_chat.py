@@ -70,12 +70,18 @@ def listen_client(client_socket):
             client_socket.close()
 
 
-def server_thread(server_sock, peers):
+def server_thread(peers):
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        server_socket.bind((HOST, PORT))
+    except socket.error as msg:
+        print(msg)
+    server_socket.listen(10)
     while 1:
         connection, address = server_sock.accept()
         if address[0] not in peers:
-            print('\r' + address)
-            print('\r' + peers)
+            print(address)
+            print(peers)
             CLIENT_THREADS.append(threading.Thread(
                 target=client_thread, args=(address[0], )).start())
         CONNECTION_THREADS.append(threading.Thread(
@@ -86,22 +92,14 @@ def server_thread(server_sock, peers):
 
 if __name__ == "__main__":
     HOST = ''
-    PORT = 8868
+    PORT = 8898
     PEERS_LIST = []
     CONNECTION_THREADS = []
     CLIENT_THREADS = []
 
     get_connected_peers()
 
-    SERVER_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        SERVER_SOCKET.bind((HOST, PORT))
-    except socket.error as msg:
-        print(msg)
-    SERVER_SOCKET.listen(10)
-    mp.Process(target=server_thread, args=(SERVER_SOCKET, PEERS_LIST, )).start()
+    threading.Thread(target=server_thread, args=(PEERS_LIST, )).start()
 
-    if PEERS_LIST:
-        for peer in PEERS_LIST:
-            CLIENT_THREADS.append(threading.Thread(
-                target=client_thread, args=(peer, )).start())
+    for peer in PEERS_LIST:
+        CLIENT_THREADS.append(threading.Thread(target=client_thread, args=(peer, )).start())
