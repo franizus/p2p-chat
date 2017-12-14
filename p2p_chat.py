@@ -77,21 +77,19 @@ def server_thread(peers):
         print(msg)
     server_socket.listen(10)
     while 1:
-        connection, address = server_sock.accept()
+        connection, address = server_socket.accept()
         if address[0] not in peers:
-            print(address)
-            print(peers)
             CLIENT_THREADS.append(threading.Thread(
                 target=client_thread, args=(address[0], )).start())
         CONNECTION_THREADS.append(threading.Thread(
             target=listen_client, args=(connection,)).start())
 
-    server_sock.close()
+    server_socket.close()
 
 
 if __name__ == "__main__":
     HOST = ''
-    PORT = 8898
+    PORT = 8893
     PEERS_LIST = []
     CONNECTION_THREADS = []
     CLIENT_THREADS = []
