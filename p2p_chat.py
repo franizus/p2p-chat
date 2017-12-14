@@ -4,7 +4,6 @@ import shlex
 import threading
 import select
 import sys
-import multiprocessing as mp
 import xml.etree.ElementTree as elt
 
 
